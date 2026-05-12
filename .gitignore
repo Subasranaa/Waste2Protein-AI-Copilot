@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Mac
+.DS_Store
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# Model files
+*.pkl
+
+# IDE
+.vscode/
+.idea/
+
+# Testing
+.pytest_cache/
+
+# Environment files
+.env.local
