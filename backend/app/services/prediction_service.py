@@ -1,47 +1,77 @@
+from pathlib import Path
+
+import joblib
+import pandas as pd
+
 from app.schemas import PredictionInput
+
 
 class PredictionService:
     def __init__(self):
-        self.model_version ="baseline-rule-v0.1"
+        self.model_version = "random-forest-v1.0"
+        self.model_path = Path(__file__).resolve().parents[1] / "model" / "protein_model.pkl"
+        self.model = self._load_model()
+
+    def _load_model(self):
+        if not self.model_path.exists():
+            raise FileNotFoundError(
+                f"Model file not found at {self.model_path}. "
+                "Please run: python ml/train_model.py"
+            )
+
+        return joblib.load(self.model_path)
 
     def predict(self, data: PredictionInput):
-        """
-        Temporary rule-based baseline.
-        Later we will replace this with a trained ML model.
-        """
-
-        base_yield = 10.0
-
-        
-        sugar_effect = data.sugar_content * 0.8
-        nitrogen_effect = data.nitrogen_content * 3.0
-        time_effect = min(data.fermentation_time * 0.25, 15)
-        temperature_effect = max(0, 10 - abs(data.temperature - 30) * 0.6)
-        ph_effect = max(0, 8 - abs(data.ph - 6.0) * 2)
-
-        predicted_yield = (
-            base_yield
-            + sugar_effect
-            + nitrogen_effect
-            + time_effect
-            + temperature_effect
-            + ph_effect
+        input_df = pd.DataFrame(
+            [
+                {
+                    "waste_type": data.waste_type,
+                    "sugar_content": data.sugar_content,
+                    "nitrogen_content": data.nitrogen_content,
+                    "moisture": data.moisture,
+                    "ph": data.ph,
+                    "temperature": data.temperature,
+                    "fermentation_time": data.fermentation_time,
+                    "waste_volume_kg": data.waste_volume_kg,
+                    "location": data.location,
+                }
+            ]
         )
 
-        predicted_yield = round(predicted_yield, 2)
+        prediction = float(self.model.predict(input_df)[0])
 
-        uncertainty = round(max(2.0, abs(data.temperature - 30) * 0.3 + abs(data.ph - 6.0)),2)
+        uncertainty = self._estimate_uncertainty(input_df)
 
-        if uncertainty <= 3:
-            confidence = "high"
-        elif uncertainty <= 6:
-            confidence = "medium"
-        else:
-            confidence = "low"
+        confidence = self._confidence_from_uncertainty(uncertainty)
 
         return {
-            "predicted_protein_yield": predicted_yield,
-            "uncertainty" : uncertainty,
+            "predicted_protein_yield": round(prediction, 2),
+            "uncertainty": round(uncertainty, 2),
             "confidence_level": confidence,
             "model_version": self.model_version,
-            }
+        }
+
+    def _estimate_uncertainty(self, input_df: pd.DataFrame) -> float:
+        """
+        Random Forest uncertainty approximation:
+        calculate standard deviation across individual tree predictions.
+        """
+
+        preprocessor = self.model.named_steps["preprocessor"]
+        rf_model = self.model.named_steps["model"]
+
+        transformed_input = preprocessor.transform(input_df)
+
+        tree_predictions = [
+            tree.predict(transformed_input)[0]
+            for tree in rf_model.estimators_
+        ]
+
+        return float(pd.Series(tree_predictions).std())
+
+    def _confidence_from_uncertainty(self, uncertainty: float) -> str:
+        if uncertainty <= 3:
+            return "high"
+        if uncertainty <= 6:
+            return "medium"
+        return "low"
