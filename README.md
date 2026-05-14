@@ -74,7 +74,7 @@ LLM Insight Service (Groq)
 Economic Feasibility Service
         ↓
 Caching + Cost Tracking
-
+```
 ---
 
 # Repository Structure
@@ -117,7 +117,7 @@ waste2protein-ai-copilot/
 └── .gitignore
 
 ---
-
+```
 # Run Locally
 
 ## 1. Clone Repository
