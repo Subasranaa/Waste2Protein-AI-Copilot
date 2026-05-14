@@ -116,8 +116,8 @@ waste2protein-ai-copilot/
 ├── README.md
 └── .gitignore
 
----
 ```
+---
 # Run Locally
 
 ## 1. Clone Repository
