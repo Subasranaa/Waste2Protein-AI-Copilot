@@ -100,6 +100,7 @@ waste2protein-ai-copilot/
 │   │       └── protein_model.pkl
 │   │
 │   ├── tests/
+│       ├── test_api.py
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── pytest.ini
