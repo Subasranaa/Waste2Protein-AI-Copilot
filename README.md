@@ -4,6 +4,8 @@ An AI-powered backend platform for predicting microbial protein yield from agri-
 
 This project was designed as a production-oriented AI platform prototype focused on backend architecture, API engineering, cloud deployment, ML inference, and LLM integration.
 
+Live Demo: https://waste2protein-backend.onrender.com
+
 ---
 
 # Overview
