@@ -25,7 +25,7 @@ This platform enables users to:
 
 # Key Features
 
-## Machine Learning Inference
+## Machine Learning(ML) Inference
 
 - Trained Random Forest regression model
 - Protein yield prediction
