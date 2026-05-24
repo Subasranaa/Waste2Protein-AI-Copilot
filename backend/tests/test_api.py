@@ -54,4 +54,4 @@ def test_insights_endpoint():
     assert "prediction" in data
     assert "insight" in data
     assert "economic_estimate" in data
-    assert "estimated_llm_cost" in data
+    assert "llm_cost" in data

@@ -1,34 +1,39 @@
 import json
 import os
 from typing import Dict, Any
-
 from groq import Groq
-
 from app.schemas import PredictionInput
+from app.logger import setup_logger
 
+logger = setup_logger(__name__)
 
 class LLMService:
     def __init__(self):
         self.provider = os.getenv("LLM_PROVIDER", "mock")
         self.groq_api_key = os.getenv("GROQ_API_KEY")
         self.groq_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        logger.info(f"LLMService initialised | provider={self.provider} | model={self.groq_model}")
 
     def generate_insight(self, input_data: PredictionInput, prediction_result: dict) -> dict:
         if self.provider == "groq" and self.groq_api_key:
             try:
-                return self._generate_with_groq(input_data, prediction_result)
-            except Exception:
+                logger.info("Generating insight via Groq API")
+                result = self._generate_with_groq(input_data, prediction_result)
+                logger.info("Groq insight generated successfully")
+                return result
+            except Exception as e:
+                # Previously this was silent — now you'll see exactly what failed
+                logger.error(f"Groq API failed: {e} | falling back to rule-based response")
                 return self._fallback_response(input_data, prediction_result)
 
+        logger.info("Using rule-based fallback | reason: provider not groq or no API key")
         return self._fallback_response(input_data, prediction_result)
 
-    def _generate_with_groq(
-        self,
-        input_data: PredictionInput,
-        prediction_result: dict,
-    ) -> dict:
+    def _generate_with_groq(self, input_data, prediction_result):
         client = Groq(api_key=self.groq_api_key)
         prompt = self._build_prompt(input_data, prediction_result)
+
+        logger.debug(f"Sending prompt to Groq | model={self.groq_model}")
 
         completion = client.chat.completions.create(
             model=self.groq_model,
@@ -53,13 +58,25 @@ class LLMService:
             ],
             temperature=0.2,
         )
+        # Groq gives you real token counts — use them
+        usage = completion.usage
+        logger.info(f"Groq usage | prompt_tokens={usage.prompt_tokens} | completion_tokens={usage.completion_tokens}")
+        
 
         raw_text = completion.choices[0].message.content
-
+        
         try:
-            return json.loads(raw_text)
-        except json.JSONDecodeError:
-            return self._fallback_response(input_data, prediction_result)
+            insight= json.loads(raw_text)
+        except json.JSONDecodeError as e:
+            insight= self._fallback_response(input_data, prediction_result)
+        return {
+        "insight": insight,
+        "token_usage": {
+            "prompt_tokens": usage.prompt_tokens,
+            "completion_tokens": usage.completion_tokens,
+            "total_tokens": usage.total_tokens
+        }
+    }
 
     def _build_prompt(
         self,
