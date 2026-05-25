@@ -69,13 +69,19 @@ Frontend / Client
         ↓
 FastAPI Backend API
         ↓
+Redis Cache (check before processing)
+        ↓
 Prediction Service (ML Model)
         ↓
 LLM Insight Service (Groq)
         ↓
-Economic Feasibility Service
+Economics Service
         ↓
-Caching + Cost Tracking
+Cost Tracker (real token counting)
+        ↓
+PostgreSQL Database (persist results)
+        ↓
+Cached Response
 ```
 ---
 
@@ -91,15 +97,20 @@ waste2protein-ai-copilot/
 │   │   ├── routes/
 │   │   │   ├── health.py
 │   │   │   ├── predict.py
+│   │   │   ├── history.py
 │   │   │   └── insights.py
 │   │   ├── services/
 │   │   │   ├── prediction_service.py
 │   │   │   ├── llm_service.py
 │   │   │   ├── cost_tracker.py
 │   │   │   ├── cache_service.py
-│   │   │   └── economics_service.py
-│   │   └── model/
-│   │       └── protein_model.pkl
+│   │   │   ├── economics_service.py
+│   │   │   └── dependencies.py
+│   │   ├── database.py           
+│   │   ├── logger.py              
+│   │   └── monitoring.py        
+│   │   │   └── model/
+│   │   │       └── protein_model.pkl
 │   │
 │   ├── tests/
 │       ├── test_api.py
@@ -184,6 +195,11 @@ Add the following variables:
 LLM_PROVIDER=groq
 GROQ_API_KEY=your_groq_api_key
 GROQ_MODEL=llama-3.3-70b-versatile
+LOG_LEVEL=DEBUG
+PROTEIN_PRICE_PER_KG_GBP=4.5
+PROCESSING_COST_PER_KG_GBP=1.2
+DATABASE_URL=your_postgresql_url
+REDIS_URL=your_redis_url  (optional locally)
 ```
 
 ---
@@ -271,24 +287,21 @@ The pipeline:
 - Runs Pytest test suite
 
 # Limitations
-
 This is an early-stage prototype.
-
 - The training dataset is synthetic.
 - Protein yield predictions are for demonstration only.
 - Economic estimates are scenario-based and simplified.
 - Microbial recommendations require laboratory validation.
-- This system should not be used as a substitute for experimental fermentation studies.
+- This system should not be used as a substitute for 
+  experimental fermentation studies.
 
 # Future Improvements
-
-- Replace synthetic data with real experimental fermentation and waste-composition datasets
-- Add database-backed request logging and experiment tracking
-- Add persistent Redis caching for repeated LLM requests
-- Add model monitoring, drift detection, and retraining workflows
-- Add authentication, rate limiting, and usage quotas for public API access
-- Add stakeholder-facing dashboard for food producers and researchers
-- Improve optimisation using Bayesian optimisation or simulation-based search
-- Add uncertainty quantification beyond Random Forest tree variance
-- Add support for multiple LLM providers with provider routing and fallback logic
-- Deploy to AWS ECS, Elastic Beanstalk, or Azure Container Apps for production-scale hosting
+- Replace synthetic data with real experimental data
+- Model monitoring and drift detection
+- Authentication and rate limiting
+- Stakeholder dashboard
+- Bayesian optimisation
+- Multiple LLM provider routing
+- AWS ECS / Azure for production-scale hosting
+- DVC integration for model versioning and reproducibility
+- CloudWatch monitoring for production observability
