@@ -68,8 +68,6 @@ Integrated Groq-hosted LLM for:
 # System Architecture
 
 ```text
-# System Architecture
-
 Frontend / Client
         ↓
 FastAPI Backend API
