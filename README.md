@@ -33,33 +33,36 @@ This platform enables users to:
 - Structured prediction responses
 
 ## LLM-Assisted Decision Support
-
 Integrated Groq-hosted LLM for:
-
 - Microbial candidate recommendations
 - Limiting factor identification
 - Fermentation recommendations
 - R&D roadmap generation
 - Scientific decision-support summaries
+- Graceful fallback to rule-based responses if LLM unavailable
 
-## Backend Engineering
+## Economic Feasibility
+- Scenario-based protein yield revenue estimation
+- Processing cost modelling
+- Economic viability scoring
+- Configurable pricing via environment variables
 
+## Backend Engineering & Reliability
 - FastAPI backend architecture
 - Modular service-based design
 - Pydantic request validation
 - OpenAPI / Swagger documentation
 - Dockerized deployment
 - Public cloud deployment on Render
-
-## Reliability & Engineering Features
-
+- GitHub Actions CI/CD pipeline — tests gate deployment
+- Automated testing with Pytest
+- PostgreSQL database integration
+- Redis caching layer
+- Structured logging across all services
+- Real-time LLM cost tracking
+- Health check endpoint with dependency reporting
 - Environment-based configuration
-- Request caching layer
 - Graceful LLM fallback handling
-- CI/CD workflow with GitHub Actions
-- API testing with Pytest
-- Cost-aware inference tracking
-
 ---
 
 # System Architecture
@@ -272,19 +275,19 @@ http://127.0.0.1:8000/docs
 
 # CI/CD
 
-GitHub Actions is configured to run backend tests automatically on push and pull requests.
+GitHub Actions is configured to run backend tests automatically 
+on every push to main, and deploys to Render only if all tests pass.
 
 Workflow file:
-
-```bash
 .github/workflows/backend-ci.yml
-```
 
 The pipeline:
 - Checks out repository
-- Sets up Python
+- Sets up Python 3.11
 - Installs dependencies
 - Runs Pytest test suite
+- If tests pass → triggers Render deployment automatically
+- If tests fail → deployment is blocked
 
 # Limitations
 This is an early-stage prototype.
