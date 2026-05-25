@@ -68,23 +68,27 @@ Integrated Groq-hosted LLM for:
 # System Architecture
 
 ```text
+# System Architecture
+
 Frontend / Client
         ↓
 FastAPI Backend API
         ↓
-Redis Cache (check before processing)
-        ↓
-Prediction Service (ML Model)
-        ↓
-LLM Insight Service (Groq)
-        ↓
-Economics Service
-        ↓
-Cost Tracker (real token counting)
-        ↓
-PostgreSQL Database (persist results)
-        ↓
-Cached Response
+Redis Cache Check
+  ↓ HIT                    ↓ MISS
+Return Cached         Prediction Service (ML Model)
+Response                    ↓
+                      LLM Insight Service (Groq)
+                            ↓
+                      Economics Service
+                            ↓
+                      Cost Tracker
+                            ↓
+                      PostgreSQL Database
+                            ↓
+                      Store in Redis Cache
+                            ↓
+                      Return Response
 ```
 ---
 
