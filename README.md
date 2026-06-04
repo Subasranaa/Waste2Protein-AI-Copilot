@@ -111,18 +111,17 @@ waste2protein-ai-copilot/
 │   │   │   ├── cache_service.py
 │   │   │   ├── economics_service.py
 │   │   │   └── dependencies.py
-│   │   ├── database.py           
-│   │   ├── logger.py              
-│   │   └── monitoring.py        
-│   │   │   └── model/
+│   │   ├── model/
 │   │   │       └── protein_model.pkl
-│   │
+│   │   ├── database.py           
+│   │   ├── logger.py                 
+│   │   │
 │   ├── tests/
 │       ├── test_api.py
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── pytest.ini
-│
+│   │
 ├── ml/
 │   ├── generate_synthetic_data.py
 │   ├── train_model.py
