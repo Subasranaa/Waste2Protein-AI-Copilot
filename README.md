@@ -117,7 +117,7 @@ waste2protein-ai-copilot/
 │   │   ├── logger.py                 
 │   │   │
 │   ├── tests/
-│       ├── test_api.py
+│   │   ├── test_api.py
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── pytest.ini
